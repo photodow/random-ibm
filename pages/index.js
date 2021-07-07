@@ -42,6 +42,13 @@ const Home = () => (
         },
       },
       {
+        heading: "Random content",
+        copy: " ",
+        cta: {
+          href: `./random${_htmlExtension}`,
+        },
+      },
+      {
         heading: "More coming soon!",
         copy: " ",
         cta: {

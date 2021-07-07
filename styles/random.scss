@@ -1,0 +1,204 @@
+/*
+
+ NOTES:
+ 
+ - Leadspace brings in a bunch of extra junk with extra specificity
+ - Basic spacing needs to be correct across Content block, content group, and content item
+ 
+ */
+
+/* elements */
+
+// @import "~@carbon/type/scss/font-face/sans";
+@import "~@carbon/layout/scss/_breakpoint.scss";
+@import "~@carbon/type/scss/styles";
+@import "~@carbon/grid/scss/mixins";
+@import "~@carbon/themes/scss/themes";
+
+/* low level */
+@import "~@carbon/ibmdotcom-styles/scss/components/layout/layout";
+@import "~@carbon/ibmdotcom-styles/scss/internal/content-block/content-block";
+@import "~@carbon/ibmdotcom-styles/scss/internal/content-group/content-group";
+@import "~@carbon/ibmdotcom-styles/scss/internal/content-item/content-item";
+@import "~@carbon/ibmdotcom-styles/scss/components/card/index";
+
+/* cta */
+@import "~@carbon/ibmdotcom-styles/scss/components/buttongroup/buttongroup";
+@import "~@carbon/ibmdotcom-styles/scss/components/card-link/card-link";
+@import "~@carbon/ibmdotcom-styles/scss/components/feature-card/feature-card";
+@import "~@carbon/ibmdotcom-styles/scss/components/link-with-icon/link-with-icon";
+
+/* other components */
+@import "~@carbon/ibmdotcom-styles/scss/components/image/image";
+@import "~@carbon/ibmdotcom-styles/scss/components/image-with-caption/image-with-caption";
+@import "~@carbon/ibmdotcom-styles/scss/components/lightbox-media-viewer/lightbox-media-viewer";
+@import "~@carbon/ibmdotcom-styles/scss/components/tableofcontents/tableofcontents";
+@import "~@carbon/ibmdotcom-styles/scss/components/leadspace/leadspace";
+@import "~@carbon/ibmdotcom-styles/scss/components/leadSpace-block/leadSpace-block";
+@import "~@carbon/ibmdotcom-styles/scss/components/card-group/card-group";
+@import "~@carbon/ibmdotcom-styles/scss/components/pictogram-item/pictogram-item";
+
+/* animations */
+@import "~@carbon/ibmdotcom-styles/scss/components/scroll-into-view/_scroll-into-view.scss";
+
+/* overrides */
+
+.random [data-autoid="dds--card-group"] {
+  .bx--card {
+    margin: 0;
+  }
+}
+
+.random .bx--content-group__children > [data-autoid="dds--card-group"] {
+  @include carbon--breakpoint("lg") {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bx--card-group__cards__col {
+    @include carbon--breakpoint("md") {
+      &:nth-child(2n + 1) {
+        transition-delay: 0;
+      }
+
+      &:nth-child(2n + 2) {
+        transition-delay: 0.1s;
+      }
+    }
+  }
+}
+
+.random {
+  .bx--content-block.bx--content-block {
+    margin-top: 32px;
+    margin-bottom: 64px;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    @include carbon--breakpoint("md") {
+      margin-bottom: 96px;
+    }
+
+    @include carbon--breakpoint("lg") {
+      margin-top: 64px;
+      margin-bottom: 160px;
+    }
+
+    .bx--content-block__heading {
+      margin-top: 32px;
+      margin-bottom: 32px;
+    }
+
+    .bx--content-block__copy {
+      margin-top: 32px;
+      margin-bottom: 32px;
+
+      @include carbon--breakpoint("md") {
+        margin-bottom: 64px;
+      }
+
+      @include carbon--breakpoint("lg") {
+        margin-bottom: 96px;
+      }
+    }
+
+    .bx--content-block__children {
+      margin-top: 64px;
+      margin-bottom: 64px;
+
+      > [data-autoid="dds--card-group"] {
+        @include carbon--breakpoint("lg") {
+          margin-right: calc(-1 * 50% - 2rem);
+        }
+
+        @include carbon--breakpoint("md") {
+          .bx--card-group__cards__col {
+            &:nth-child(3n + 1) {
+              transition-delay: 0;
+            }
+
+            &:nth-child(3n + 2) {
+              transition-delay: 0.1s;
+            }
+
+            &:nth-child(3n + 3) {
+              transition-delay: 0.2s;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .bx--layout--border.bx--layout--border {
+    padding: 0;
+  }
+
+  .bx--content-group.bx--content-group {
+    margin-top: 32px;
+    margin-bottom: 32px;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    @include carbon--breakpoint("md") {
+      margin-bottom: 48px;
+    }
+
+    .bx--content-group__copy {
+      margin-top: 32px;
+      margin-bottom: 32px;
+    }
+
+    .bx--content-group__cta {
+      margin-bottom: 64px;
+    }
+  }
+
+  .bx--content-item.bx--content-item {
+    .bx--content-item__cta {
+      margin-bottom: 48px;
+    }
+  }
+
+  .bx--link-with-icon.bx--link-with-icon {
+    @include carbon--type-style("body-long-02");
+  }
+}
+
+.bx--leadspace {
+  & &--g100.bx--leadspace__section {
+    @include carbon--theme($carbon--theme--g100) {
+      background: $ui-background;
+    }
+  }
+
+  & &--g90.bx--leadspace__section {
+    @include carbon--theme($carbon--theme--g90) {
+      background: $ui-background;
+    }
+  }
+
+  & &--g10.bx--leadspace__section {
+    @include carbon--theme($carbon--theme--g10) {
+      background: $ui-background;
+    }
+  }
+
+  & &--white.bx--leadspace__section {
+    @include carbon--theme($carbon--theme--white) {
+      background: $ui-background;
+    }
+  }
+}
+
+/* custom */
+.bx--pictogram-item .bx--content-item {
+  transition-delay: 0.1s;
+}
+
+aside.bx--layout-1-3 > * {
+  @include carbon--breakpoint("lg") {
+    margin-top: 64px;
+    padding-top: 0;
+    padding-left: calc(25% + 0.5rem);
+  }
+}
