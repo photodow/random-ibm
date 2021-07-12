@@ -10,14 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: npm install
+      - name: Install dependencies
+        run: yarn install
       - name: Set env vars
         uses: ./.github/actions/set-dotenv
         with:
           env-file: .env
         env:
           SASS_PATH: node_modules:src
-      - run: npm run build-export
+      - name: Build project
+        run: yarn build
+      - name: Export project
+        run: yarn export
       - name: GitHub Pages
         uses: crazy-max/ghaction-github-pages@v2.5.0
         with:
