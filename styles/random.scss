@@ -1,12 +1,3 @@
-/*
-
- NOTES:
- 
- - Leadspace brings in a bunch of extra junk with extra specificity
- - Basic spacing needs to be correct across Content block, content group, and content item
- 
- */
-
 /* elements */
 
 // @import "~@carbon/type/scss/font-face/sans";
@@ -190,6 +181,10 @@
   }
 }
 
+.bx--dotcom-shell__content {
+  max-width: initial;
+}
+
 /* custom */
 .bx--pictogram-item .bx--content-item {
   transition-delay: 0.1s;
@@ -200,5 +195,13 @@ aside.bx--layout-1-3 > * {
     margin-top: 64px;
     padding-top: 0;
     padding-left: calc(25% + 0.5rem);
+  }
+}
+
+.bx--buttongroup-item {
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      transition-delay: 0.1 * $i + s;
+    }
   }
 }
