@@ -10,7 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: set env vars
+      - name: Set env vars
+        uses: ./.github/actions/set-dotenv
+        with:
+          env-file: .env
         env:
           SASS_PATH: node_modules:src
       - run: npm install
