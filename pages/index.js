@@ -20,7 +20,6 @@ import ContentItem from "@carbon/ibmdotcom-react/lib/internal/components/Content
 // import ContentSection from "@carbon/ibmdotcom-react/lib/internal/components/ContentSection/ContentSection";
 import { loremIpsum } from "lorem-ipsum";
 
-// [ ] reuce animations not rendered
 // [ ] single type sets default
 // [ ] repeat overwrite
 // [ ] character count
@@ -101,12 +100,18 @@ const Random = () => {
         content = (
           <ScrollAnimations
             keepAnimations={
-              searchParams.get(selector + "Repeat") !== "false" ? true : false
+              searchParams.get("repeatOverride")
+                ? searchParams.get("repeatOverride") !== "false"
+                : searchParams.get(selector + "Repeat") !== "false"
             }
             selectorTargets={
               searchParams.get(selector) === "true" ? selectors[selector] : ""
             }
-            animation={searchParams.get(selector + "Type") || "slide-up"}
+            animation={
+              searchParams.get("singleType")
+                ? searchParams.get("singleType")
+                : searchParams.get(selector + "Type") || "slide-up"
+            }
           >
             {content}
           </ScrollAnimations>
@@ -847,6 +852,10 @@ function randomUrl() {
   if (oldURL.get("fixed") === "false") {
     if (oldURL.has("fixed")) {
       newURL.append("fixed", oldURL.get("fixed"));
+    }
+
+    if (oldURL.has("repeatOverride")) {
+      newURL.append("repeatOverride", oldURL.get("repeatOverride"));
     }
 
     if (oldURL.has("singleType")) {
