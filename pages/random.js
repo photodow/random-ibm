@@ -8,8 +8,7 @@ import React, { useEffect } from "react";
  */
 const Redirect = () => {
   useEffect(() => {
-    window.location = window.location.href.replace("/random", "");
-    // console.log(window.location);
+    window.location = window.location.href.replace("/random.html", "");
   }, []);
 
   return "redirecting";

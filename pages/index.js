@@ -20,6 +20,10 @@ import ContentItem from "@carbon/ibmdotcom-react/lib/internal/components/Content
 // import ContentSection from "@carbon/ibmdotcom-react/lib/internal/components/ContentSection/ContentSection";
 import { loremIpsum } from "lorem-ipsum";
 
+// [ ] reuce animations not rendered
+// [ ] single type sets default
+// [ ] repeat overwrite
+// [ ] character count
 // [ ] cta block
 // [ ] carousel (cards only for now)
 // [ ] lead space block
@@ -27,6 +31,7 @@ import { loremIpsum } from "lorem-ipsum";
 // [ ] callout quote and with media
 // [ ] content group hoirzontal
 // [ ] feature card
+// [ ] additional layouts
 
 const leadspaceIds = [
   "135",
@@ -92,30 +97,34 @@ const Random = () => {
     let content = randomSection();
 
     selectorKeys.forEach((selector) => {
-      content = (
-        <ScrollAnimations
-          keepAnimations={
-            searchParams.get(selector + "Repeat") !== "false" ? true : false
-          }
-          selectorTargets={
-            searchParams.get(selector) === "true" ? selectors[selector] : ""
-          }
-          animation={searchParams.get(selector + "Type") || "slide-up"}
-        >
-          {content}
-        </ScrollAnimations>
-      );
+      if (searchParams.get(selector)) {
+        content = (
+          <ScrollAnimations
+            keepAnimations={
+              searchParams.get(selector + "Repeat") !== "false" ? true : false
+            }
+            selectorTargets={
+              searchParams.get(selector) === "true" ? selectors[selector] : ""
+            }
+            animation={searchParams.get(selector + "Type") || "slide-up"}
+          >
+            {content}
+          </ScrollAnimations>
+        );
+      }
     });
 
     setContent(
       <div className="random">
         <style>
           {selectorKeys.map((selector) => {
-            return `${selectors[selector]} {
-                          transition-delay: ${
-                            searchParams.get(selector + "Delay") || 0
-                          }s;
-                        }`;
+            if (searchParams.get(selector)) {
+              return `${selectors[selector]} {
+                              transition-delay: ${
+                                searchParams.get(selector + "Delay") || 0
+                              }s;
+                            }`;
+            }
           })}
         </style>
 
