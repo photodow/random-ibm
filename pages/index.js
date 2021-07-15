@@ -523,13 +523,12 @@ function randomContentGroup() {
           [randomContentItem, randomCardGroup, randomPictogramItem],
           true
         );
-        console.log(data.children[0]);
+
         if (
           data.children[0] &&
-          ["CardGroup", "PictogramItem"].indexOf(data.children[0].type.name) >
-            -1
+          data.children[0].props &&
+          (data.children[0].props.cards || data.children[0].props.pictogram)
         ) {
-          console.log("there shouldnt be a cta");
           includeCTA = false;
         }
       }
