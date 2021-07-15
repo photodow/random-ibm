@@ -65,12 +65,12 @@ const layoutType = layoutTypes[randomNum(0, layoutTypes.length - 1)]; // true = 
 
 const selectors = {
   heading:
-    ".bx--content-group__title, .bx--leadspace__title, [class*=bx--content-][class*=__heading]",
+    ".bx--content-group__title, .bx--leadspace__title, [class*=bx--content-][class*=__heading], .bx--link-list__heading",
   copy: "[class*=bx--content-][class*=__copy] p, .bx--leadspace__desc",
-  media: ".bx--image-with-caption__image",
-  caption: ".bx--image-with-caption__caption",
+  media: ".bx--image-with-caption__image, .bx--image-with-caption .bx--image",
+  caption: ".bx--image-with-caption__caption, .bx--image__caption",
   cta:
-    '.bx--buttongroup-item, .bx--link-with-icon__container, [class*="__cta"] .bx--card, [class*="__CTA"] .bx--card',
+    '.bx--buttongroup-item, .bx--link-with-icon__container, [class*="__cta"] .bx--card, [class*="__CTA"] .bx--card, .bx--link-list__list__CTA',
   card: ".bx--card-group__cards__col",
   contentBlock: ".bx--content-block",
   contentGroup: ".bx--content-group",
@@ -150,7 +150,9 @@ const Random = () => {
                 ${selectors[selector]} {
                   transition-delay: ${
                     searchParams.get(selector + "Delay") || 0
-                  }s;
+                  }s${
+                searchParams.get(selector + "Delay") ? " !important" : ""
+              };
                 }`;
             }
           })}
@@ -521,12 +523,13 @@ function randomContentGroup() {
           [randomContentItem, randomCardGroup, randomPictogramItem],
           true
         );
-
+        console.log(data.children[0]);
         if (
           data.children[0] &&
           ["CardGroup", "PictogramItem"].indexOf(data.children[0].type.name) >
             -1
         ) {
+          console.log("there shouldnt be a cta");
           includeCTA = false;
         }
       }
