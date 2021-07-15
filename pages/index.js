@@ -101,7 +101,7 @@ const Random = () => {
     const fullBleed = Boolean(randomNum(0, 1)); // include leadspace or not
     let content = [];
 
-    if (fullBleed) {
+    if (fullBleed || searchParams.get("full-bleed") === "true") {
       document.querySelector("body").classList.add("random--bleed");
     }
 
