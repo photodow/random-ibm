@@ -12,23 +12,21 @@ import {
   ScrollAnimations,
   TableOfContents,
   LeadSpace,
+  LeadSpaceBlock,
 } from "@carbon/ibmdotcom-react";
 import React, { useState, useEffect } from "react";
 import ContentBlock from "@carbon/ibmdotcom-react/lib/internal/components/ContentBlock/ContentBlock";
 import ContentGroup from "@carbon/ibmdotcom-react/lib/internal/components/ContentGroup/ContentGroup";
 import ContentItem from "@carbon/ibmdotcom-react/lib/internal/components/ContentItem/ContentItem";
-// import ContentSection from "@carbon/ibmdotcom-react/lib/internal/components/ContentSection/ContentSection";
+import ContentSection from "@carbon/ibmdotcom-react/lib/internal/components/ContentSection/ContentSection";
 import { loremIpsum } from "lorem-ipsum";
 
-// [ ] single type sets default
-// [ ] repeat overwrite
-// [ ] character count
+// [ ] lead space block
 // [ ] cta block
 // [ ] carousel (cards only for now)
-// [ ] lead space block
 // [ ] video?
 // [ ] callout quote and with media
-// [ ] content group hoirzontal
+// [ ] content group horizontal
 // [ ] feature card
 // [ ] additional layouts
 
@@ -60,6 +58,30 @@ const leadspaceIds = [
 ];
 const pictogramKeys = Object.keys(pictograms);
 const leadspaceId = leadspaceIds[randomNum(0, leadspaceIds.length - 1)];
+const includeLeadspace = Boolean(randomNum(0, 1)); // include leadspace or not
+
+const layoutTypes = ["left", "center"];
+const layoutType = layoutTypes[randomNum(0, layoutTypes.length - 1)]; // true = left, false = center
+
+const selectors = {
+  heading:
+    ".bx--content-group__title, .bx--leadspace__title, [class*=bx--content-][class*=__heading]",
+  copy: "[class*=bx--content-][class*=__copy] p, .bx--leadspace__desc",
+  media: ".bx--image-with-caption__image",
+  caption: ".bx--image-with-caption__caption",
+  cta:
+    '.bx--buttongroup-item, .bx--link-with-icon__container, [class*="__cta"] .bx--card, [class*="__CTA"] .bx--card',
+  card: ".bx--card-group__cards__col",
+  contentBlock: ".bx--content-block",
+  contentGroup: ".bx--content-group",
+  contentItem: ".bx--content-item",
+  // leadspace: '.bx--leadspace',
+  cardGroup: '[data-autoid="dds--card-group"]',
+  mediaWithCaption: ".bx--image-with-caption",
+  pictogramItem: ".bx--pictogram-item",
+  pictogram: ".bx--pictogram-item__pictogram",
+};
+const selectorKeys = Object.keys(selectors);
 
 let searchParams = new URLSearchParams("");
 
@@ -74,26 +96,26 @@ const Random = () => {
   useEffect(() => {
     searchParams = new URLSearchParams(window.location.search);
 
-    const selectors = {
-      heading:
-        ".bx--content-group__title, .bx--leadspace__title, [class*=bx--content-][class*=__heading]",
-      copy: "[class*=bx--content-][class*=__copy] p",
-      media: ".bx--image-with-caption__image",
-      caption: ".bx--image-with-caption__caption",
-      cta:
-        '.bx--buttongroup-item, .bx--link-with-icon__container, [class*="__cta"] .bx--card, [class*="__CTA"] .bx--card',
-      card: ".bx--card-group__cards__col",
-      contentBlock: ".bx--content-block",
-      contentGroup: ".bx--content-group",
-      contentItem: ".bx--content-item",
-      // leadspace: '.bx--leadspace',
-      cardGroup: '[data-autoid="dds--card-group"]',
-      mediaWithCaption: ".bx--image-with-caption",
-      pictogramItem: ".bx--pictogram-item",
-      pictogram: ".bx--pictogram-item__pictogram",
-    };
-    const selectorKeys = Object.keys(selectors);
-    let content = randomSection();
+    const includeIntro = Boolean(randomNum(0, 1)); // include leadspace or not
+    const includeSections = Boolean(randomNum(0, 1)); // include leadspace or not
+    const fullBleed = Boolean(randomNum(0, 1)); // include leadspace or not
+    let content = [];
+
+    if (fullBleed) {
+      document.querySelector("body").classList.add("random--bleed");
+    }
+
+    if (includeLeadspace) {
+      content.push(renderLeadspace(layoutType ? randomNum(0, 1) : 1)); // 0/false = left, 1/true = centered
+    }
+
+    if (includeIntro || !includeSections || !includeLeadspace) {
+      content.push(randomIntroSection());
+    }
+
+    if (includeSections) {
+      content.push(randomSection());
+    }
 
     selectorKeys.forEach((selector) => {
       if (searchParams.get(selector)) {
@@ -124,11 +146,12 @@ const Random = () => {
         <style>
           {selectorKeys.map((selector) => {
             if (searchParams.get(selector)) {
-              return `${selectors[selector]} {
-                              transition-delay: ${
-                                searchParams.get(selector + "Delay") || 0
-                              }s;
-                            }`;
+              return `
+                ${selectors[selector]} {
+                  transition-delay: ${
+                    searchParams.get(selector + "Delay") || 0
+                  }s;
+                }`;
             }
           })}
         </style>
@@ -142,34 +165,162 @@ const Random = () => {
 };
 
 /**
- * Generate a random Content block
+ * Generate a random intro section
+ *
+ * @returns {*} JSX for Random template
+ */
+function randomIntroSection() {
+  const childrenOptions = [randomContentBlock];
+
+  const sectionOptions = [
+    <TableOfContents stickyOffset={48} key={Math.random()}>
+      {!includeLeadspace && randomLeadspaceBlock()}
+      {randomChildren(randomNum(3, 6), childrenOptions)}
+    </TableOfContents>,
+    <ContentSection heading={false} key={Math.random()}>
+      {!includeLeadspace && randomLeadspaceBlock()}
+      {randomChildren(randomNum(0, 3), childrenOptions)}
+    </ContentSection>,
+  ];
+
+  return sectionOptions[randomNum(0, sectionOptions.length - 1)];
+}
+
+/**
+ * random lead space block
+ *
+ * @returns {*} JSX for Random template
+ */
+function randomLeadspaceBlock() {
+  const includeEyebrow = true;
+  const includeHeading = Boolean(randomNum(0, 1));
+  const includeCopy = Boolean(randomNum(0, 1));
+  const includeMedia = Boolean(randomNum(0, 1));
+  const includeLinkList = true;
+  const includeCTA = Boolean(randomNum(0, 1));
+
+  const data = {};
+
+  if (includeEyebrow) {
+    const length = randomNum(1, 3);
+    const text = loremIpsum({
+      count: 1,
+      sentencLowerBound: 1,
+      sentenceUpperBound: 5,
+      units: "sentence",
+    })
+      .replace(".", "")
+      .split(" ");
+
+    for (let i = 0; i < length; i++) {
+      if (text[i]) {
+        if (!data.title) {
+          data.title = text[i];
+        } else {
+          data.title += " " + text[i];
+        }
+      } else {
+        break;
+      }
+    }
+  }
+
+  if (includeHeading) {
+    data.heading = loremIpsum({
+      count: 1,
+      sentencLowerBound: 1,
+      sentenceUpperBound: 5,
+      units: "sentence",
+    }).replace(".", "");
+  }
+
+  if (includeCopy) {
+    data.copy = loremIpsum({
+      count: randomNum(1, 3),
+      units: "sentence",
+    });
+  }
+
+  if (includeMedia) {
+    data.mediaType = "image";
+    data.mediaData = {
+      image: {
+        alt: "Lorem picsum",
+        longDescription: "long description",
+        defaultSrc: "https://picsum.photos/1600/900?" + Math.random(),
+      },
+      lightbox: Boolean(randomNum(0, 1)),
+      heading: loremIpsum({
+        count: 1,
+        units: "sentence",
+      }),
+      copy: loremIpsum({
+        count: randomNum(1, 2),
+        units: "paragraphs",
+        suffix: "\n\n",
+      }),
+      showCaption: Boolean(randomNum(0, 1)),
+    };
+  }
+
+  if (includeLinkList) {
+    data.items = randomLinkList("vertical-end", true);
+    data.heading = loremIpsum({
+      count: 1,
+      sentencLowerBound: 1,
+      sentenceUpperBound: 5,
+      units: "sentence",
+    }).replace(".", "");
+  }
+
+  if (includeCTA) {
+    data.cta = {
+      style: "button",
+      buttons: renderButtonGroup(true),
+    };
+  }
+
+  return (
+    <Layout
+      type="2-1"
+      nested={true}
+      border={Boolean(randomNum(0, 1))}
+      key={Math.random()}
+    >
+      <div>
+        <a name={data.title.replace(/ /g, "-")} data-title={data.title} />
+        <LeadSpaceBlock {...data} key={Math.random()} />
+      </div>
+      <aside></aside>
+    </Layout>
+  );
+}
+
+/**
+ * Generate a random section
  *
  * @returns {*} JSX for Random template
  */
 function randomSection() {
-  // const sectionOptions = [TableOf];
-  const sections = [];
-  const layoutType = randomNum(0, 2);
-  const includeLeadspace = Boolean(randomNum(0, 2));
+  const sectionOptions = [randomContentSection];
+  const themes = ["g10", "g90", "g100"];
 
-  sections.push(
-    includeLeadspace && renderLeadspace(layoutType ? randomNum(0, 1) : 1)
-  ); // 0 left, 1 centered
+  // contentSection, Custom (e.g. 4x4x4x4, 8x8)?
 
-  sections.push(
-    layoutType ? (
-      <TableOfContents stickyOffset={48} key={Math.random()}>
-        {randomContentBlock()}
-      </TableOfContents>
-    ) : (
-      <Layout type="1-3" key={Math.random()}>
-        <div></div>
-        <div>{randomContentBlock()}</div>
-      </Layout>
-    )
-  );
-
-  return sections;
+  return randomChildren(randomNum(1, 4), sectionOptions).map((item) => {
+    return (
+      <div
+        className={[
+          !randomNum(0, 1)
+            ? ` random--${themes[randomNum(0, themes.length - 1)]}`
+            : "",
+          "random--themed-section",
+        ].join(" ")}
+      >
+        {item}
+      </div>
+    );
+  });
 }
 
 /**
@@ -178,97 +329,153 @@ function randomSection() {
  * @returns {*} JSX for Random template
  */
 function randomContentBlock() {
-  const returnFalse = false;
-  return renderByCount(
-    randomNum(2, 6),
-    (data) =>
-      returnFalse ? ( // data.aside
-        <>
-          <a name={data.heading.replace(/ /g, "-")} data-title={data.heading} />
-          <ContentBlock {...data} aside={data.aside} />
-        </>
-      ) : (
-        <Layout
-          type="2-1"
-          nested={true}
-          border={data.layoutBorder}
-          key={Math.random()}
-        >
-          <div>
-            <a
-              name={data.heading.replace(/ /g, "-")}
-              data-title={data.heading}
-            />
-            <ContentBlock {...data} />
-          </div>
-          <aside>{data.layoutAside}</aside>
-        </Layout>
-      ),
-    () => {
-      const includeHeading = true;
-      const includeCopy = Boolean(randomNum(0, 4));
-      const includeAside = Boolean(randomNum(0, 1));
-      const includeChildren = Boolean(randomNum(0, 4));
-      const includeCTA = !includeChildren;
-      const includeBorder = Boolean(randomNum(0, 5));
-      const children = {
-        aside: [randomContentGroup],
-        noAside: [randomContentGroup, randomCardGroup], // 12 column layouts not allowed
-      };
-      const data = {};
+  const includeHeading = true;
+  const includeCopy = Boolean(randomNum(0, 4));
+  const includeAside = Boolean(randomNum(0, 1));
+  const includeChildren = Boolean(randomNum(0, 4));
+  const includeCTA = !includeChildren;
+  const includeBorder = Boolean(randomNum(0, 5));
+  const children = {
+    aside: [randomContentGroup],
+    noAside: [randomContentGroup, randomCardGroup], // 12 column layouts not allowed
+  };
+  const data = {};
 
-      data.layoutBorder = includeBorder;
+  data.layoutBorder = includeBorder;
 
-      if (includeHeading) {
-        data.heading = loremIpsum({
-          count: 1,
-          sentencLowerBound: 1,
-          sentenceUpperBound: 6,
-          units: "sentence",
-        }).replace(".", "");
-      }
+  if (includeHeading) {
+    data.heading = loremIpsum({
+      count: 1,
+      sentencLowerBound: 1,
+      sentenceUpperBound: 6,
+      units: "sentence",
+    }).replace(".", "");
+  }
 
-      if (includeCopy) {
-        data.copy = loremIpsum({
-          count: randomNum(1, 3),
-          units: "sentence",
-        });
-      }
+  if (includeCopy) {
+    data.copy = loremIpsum({
+      count: randomNum(1, 3),
+      units: "sentence",
+    });
+  }
 
-      if (includeAside) {
-        data.layoutAside = randomChildren(1, [
-          () => randomContentItem("sm"),
-          () => randomLinkList(["card", "vertical"][randomNum(0, 1)]),
-          randomImageWithCaption,
-        ]);
-      }
-
-      if (includeChildren) {
-        data.children = randomChildren(
-          randomNum(1, 4),
-          includeAside ? children.aside : children.noAside,
-          true
-        );
-      }
-
-      if (includeCTA) {
-        data.cta = {
-          style: "card",
-          type: ["local", "external"][randomNum(0, 1)],
-          copy: loremIpsum({
-            count: 1,
-            sentencLowerBound: 2,
+  if (includeAside) {
+    data.layoutAside = randomChildren(1, [
+      () =>
+        randomContentItem({
+          heading: {
             sentenceUpperBound: 5,
             units: "sentence",
-          }).replace(".", ""),
-          cta: {
-            href: randomUrl(),
           },
-        };
-      }
+          copy: {
+            count: 2,
+            units: "sentence",
+          },
+          cta: {
+            sentenceUpperBound: 5,
+            units: "sentence",
+          },
+        }),
+      () => randomLinkList(["card", "vertical"][randomNum(0, 1)]),
+      randomImageWithCaption,
+    ]);
+  }
 
-      return data;
-    }
+  if (includeChildren) {
+    data.children = randomChildren(
+      randomNum(1, 4),
+      includeAside ? children.aside : children.noAside,
+      true
+    );
+  }
+
+  if (includeCTA) {
+    data.cta = {
+      style: "card",
+      type: ["local", "external"][randomNum(0, 1)],
+      copy: loremIpsum({
+        count: 1,
+        sentencLowerBound: 2,
+        sentenceUpperBound: 5,
+        units: "sentence",
+      }).replace(".", ""),
+      cta: {
+        href: randomUrl(),
+      },
+    };
+  }
+
+  return (
+    <Layout
+      type="2-1"
+      nested={true}
+      border={data.layoutBorder}
+      key={Math.random()}
+    >
+      <div>
+        <a name={data.heading.replace(/ /g, "-")} data-title={data.heading} />
+        <ContentBlock {...data} />
+      </div>
+      <aside>{data.layoutAside}</aside>
+    </Layout>
+  );
+}
+
+/**
+ * Generate a random card section
+ *
+ * @returns {*} JSX for Random template
+ */
+function randomContentSection() {
+  // content item
+  // content block heading?
+  // card group (3 columns centered, 4 columns left)
+  // accordion
+  // tabs extended
+
+  const includeHeading = true;
+  const includeCopy = Boolean(randomNum(0, 1));
+  const includeCTA = Boolean(randomNum(0, 1));
+
+  const data = {};
+  const children = [randomCardGroup, randomContentBlock];
+
+  if (includeHeading) {
+    data.heading = loremIpsum({
+      count: 1,
+      sentencLowerBound: 1,
+      sentenceUpperBound: 6,
+      units: "sentence",
+    }).replace(".", "");
+  }
+
+  if (includeCopy) {
+    data.copy = loremIpsum({
+      count: 1,
+      units: "sentence",
+    });
+  }
+
+  if (includeCTA) {
+    data.cta = {
+      style: "text",
+      type: "local",
+      copy: loremIpsum({
+        count: 1,
+        sentencLowerBound: 2,
+        sentenceUpperBound: 5,
+        units: "sentence",
+      }).replace(".", ""),
+      cta: {
+        href: randomUrl(),
+      },
+    };
+  }
+
+  return (
+    <ContentSection {...data} key={Math.random()}>
+      {randomChildren(1, children)}
+    </ContentSection>
   );
 }
 
@@ -285,7 +492,7 @@ function randomContentGroup() {
       const includeHeading = true;
       const includeCopy = Boolean(randomNum(0, 1));
       const includeChildren = includeCopy ? Boolean(randomNum(0, 1)) : true;
-      const includeCTA = !randomNum(0, 2);
+      let includeCTA = !randomNum(0, 2);
       const style = includeChildren
         ? "card"
         : ["card", "text"][randomNum(0, 1)];
@@ -314,6 +521,14 @@ function randomContentGroup() {
           [randomContentItem, randomCardGroup, randomPictogramItem],
           true
         );
+
+        if (
+          data.children[0] &&
+          ["CardGroup", "PictogramItem"].indexOf(data.children[0].type.name) >
+            -1
+        ) {
+          includeCTA = false;
+        }
       }
 
       if (includeCTA) {
@@ -340,32 +555,34 @@ function randomContentGroup() {
 /**
  * Generate a random Content item
  *
- * @param {string} paragraphSize sets the size of content
+ * @param {object} options settings for content item content
  *
  * @returns {*} JSX for Random template
  */
-function randomContentItem(paragraphSize) {
-  const includeHeading = Boolean(randomNum(0, 3));
-  const includeCopy = Boolean(randomNum(0, 3));
-  const includeMedia = !(includeHeading && includeCopy)
-    ? true
-    : !randomNum(0, 4);
+function randomContentItem(options) {
+  const includeHeading = options.includeHeading || Boolean(randomNum(0, 3));
+  const includeCopy = options.includeCopy || Boolean(randomNum(0, 3));
+  const includeMedia =
+    options.includeMedia || !(includeHeading && includeCopy)
+      ? true
+      : !randomNum(0, 4);
   const includeCTA = Boolean(randomNum(0, 2));
   const data = {};
-  const sizes = { sm: 1, md: 3, lg: 6 };
 
   if (includeHeading) {
     data.heading = loremIpsum({
       count: 1,
       units: "sentence",
+      ...options.heading,
     }).replace(".", "");
   }
 
   if (includeCopy) {
     data.copy = loremIpsum({
-      count: randomNum(1, sizes[String(paragraphSize)] || sizes.md),
+      count: 3,
       units: "paragraphs",
       suffix: "\n\n",
+      ...options.copy,
     });
   }
 
@@ -377,7 +594,7 @@ function randomContentItem(paragraphSize) {
         longDescription: "long description",
         defaultSrc: "https://picsum.photos/1600/900?" + Math.random(),
       },
-      lightbox: true,
+      lightbox: Boolean(randomNum(0, 1)),
       heading: loremIpsum({
         count: 1,
         units: "sentence",
@@ -387,7 +604,7 @@ function randomContentItem(paragraphSize) {
         units: "paragraphs",
         suffix: "\n\n",
       }),
-      showCaption: true,
+      showCaption: Boolean(randomNum(0, 1)),
     };
   }
 
@@ -420,7 +637,7 @@ function randomImageWithCaption() {
       longDescription: "long description",
       defaultSrc: "https://picsum.photos/1600/900?" + Math.random(),
     },
-    lightbox: true,
+    lightbox: Boolean(randomNum(0, 1)),
     heading: loremIpsum({
       count: 1,
       units: "sentence",
@@ -430,7 +647,7 @@ function randomImageWithCaption() {
       units: "paragraphs",
       suffix: "\n\n",
     }),
-    showCaption: true,
+    showCaption: Boolean(randomNum(0, 1)),
   };
 
   return <ImageWithCaption {...data} key={Math.random()} />;
@@ -498,7 +715,7 @@ function randomPictogramItem() {
  *
  * @returns {*} JSX for Random template
  */
-function randomCardGroup(alreadyRun) {
+function randomCardGroup(alreadyRun = -1) {
   if (alreadyRun > -1) {
     return "";
   }
@@ -555,7 +772,6 @@ function randomCard(dataOnly, include = {}) {
   )
     ? include.heading
     : Boolean(randomNum(0, 1));
-  // const includeCTA = Object.prototype.hasOwnProperty.call(include, 'cta') ? include.cta : Boolean(randomNum(0, 2));
 
   const data = {};
 
@@ -736,12 +952,22 @@ function renderButtonGroup(dataOnly) {
  * @returns {*} JSX for Random template
  */
 function randomLinkList(style, dataOnly) {
+  const includeHeading = Boolean(randomNum(0, 1));
   const numOfLinks = randomNum(1, 4);
 
   const data = {
     style: style,
     items: [],
   };
+
+  if (includeHeading) {
+    data.heading = loremIpsum({
+      count: 1,
+      sentencLowerBound: 1,
+      sentenceUpperBound: 5,
+      units: "sentence",
+    }).replace(".", "");
+  }
 
   for (let i = 0; i < numOfLinks; i++) {
     data.items.push({
@@ -903,9 +1129,9 @@ function randomUrl() {
       newURL.append("ctaDelay", oldURL.get("ctaDelay"));
     }
 
-    return "?" + newURL.toString();
+    return location.origin + location.pathname + "?" + newURL.toString();
   } else {
-    return window.location.search;
+    return window.location.href;
   }
 }
 
